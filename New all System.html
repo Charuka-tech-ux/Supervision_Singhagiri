@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enterprise Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --button-hover: #475569;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                        url('file:///C:/Users/charukad/Downloads/Free%20Delivery%20FB%20Cover.png') center/cover fixed;
+            color: var(--text-primary);
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .brand img {
+            height: 50px;
+            width: auto;
+            border-radius: 10px;
+        }
+
+        .brand h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .nav-btn:hover {
+            background: var(--button-hover);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .main-content {
+            margin-top: 120px;
+            padding: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            min-height: calc(100vh - 120px);
+            display: none; /* Initially hidden until login */
+        }
+
+        .systems-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .system-button {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            min-height: 300px;
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        .system-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .system-icon img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        .system-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .system-description {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .system-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: auto;
+        }
+
+        .system-btn {
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        .system-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .auth-modal {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 400px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.75rem;
+            text-align: center;
+        }
+
+        .about-section {
+            background: rgba(30, 41, 59, 0.9);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 1rem;
+            }
+
+            .brand h1 {
+                font-size: 1.25rem;
+            }
+
+            .nav-buttons {
+                gap: 0.5rem;
+            }
+
+            .nav-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.875rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .systems-container {
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .system-button {
+                min-height: 250px;
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="brand">
+            <img src="https://www.americanexpress.lk/images/specialOffers/homecare/SINHAGIRI.jpg" alt="Enterprise Logo">
+            <h1>SUPERVISION SYSTEM</h1>
+        </div>
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="showSection('dashboard')">Dashboard</button>
+            <button class="nav-btn" onclick="showSection('about')">About Us</button>
+        </div>
+    </nav>
+
+    <div class="modal-overlay" id="authModal">
+        <div class="auth-modal">
+            <h2 style="margin-bottom: 2rem; font-size: 1.75rem; font-weight: 700; color: var(--text-primary); text-align: center;">
+                Welcome Back
+            </h2>
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter your username">
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password">
+            </div>
+            <button class="btn btn-primary" onclick="authenticate()">
+                Sign In
+            </button>
+            <div id="errorMessage" class="error-message"></div>
+        </div>
+    </div>
+
+    <main class="main-content" id="mainContent">
+        <div id="about" class="about-section">
+            <h2>About Us</h2>
+            <p>Welcome to Enterprise Systems, your comprehensive solution for business management and optimization. Our platform integrates cutting-edge technology with user-friendly interfaces to streamline your operations and enhance productivity across your organization.</p>
+            <p>Our suite of enterprise tools includes advanced resource allocation and inventory management systems, designed to help your business operate at peak efficiency. With real-time monitoring, automated processes, and data-driven insights, we empower you to make informed decisions that drive sustainable growth.</p>
+            <p>At Enterprise Systems, we're committed to providing scalable, secure, and reliable solutions that adapt to your business needs. Our dedicated team of experts ensures that you receive the support and guidance needed to maximize the value of our systems.</p>
+        </div>
+
+        <div id="dashboard" class="systems-container">
+            <div class="system-button">
+                <div class="system-icon">
+                    <img src="https://cdn-icons-png.flaticon.com/512/9639/9639022.png" alt="Allocation">
+                </div>
+                <div class="system-title">Stock Allocation</div>
+                <div class="system-description">
+                    Stock allocation, Excel export, and sales calculation system for streamlined data management and yearly performance tracking.
+                </div>
+                <div class="system-actions">
+                    <button class="system-btn" onclick="window.location.href='file:///C:/Users/charukad/OneDrive%20-%20Singhagiri%20PVT%20LTD/Desktop/Singhagiri%20Retail%20System/Allocation%20AGM/sales%20Allocation%20System%20777.html'">AGM</button>
+                    <button class="system-btn" onclick="window.location.href='file:///C:/Users/charukad/OneDrive%20-%20Singhagiri%20PVT%20LTD/Desktop/Singhagiri%20Retail%20System/Allocation%20RM.html'">RM</button>
+                </div>
+            </div>
+            
+            <div class="system-button">
+                <div class="system-icon">
+                    <img src="https://cdn-icons-png.flaticon.com/512/4047/4047148.png" alt="Target Icon">
+                </div>
+                <div class="system-title">Sales Performance Analysis</div>
+                <div class="system-description">
+                    Advanced inventory control system with real-time monitoring and automated stock management.
+                </div>
+                <div class="system-actions">
+                    <button class="system-btn" onclick="window.location.href='file:///D:/Allocation%20System/all/target%20system%20new/target%20and%20Achivement.html'">Open Analysis</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Define user credentials and roles
+const users = {
+    'admin': { password: '1234', role: 'admin' },
+    'rm1': { password: 'rm001', role: 'rm' },
+    'rm2': { password: 'rm002', role: 'rm' },
+    'rm3': { password: 'rm003', role: 'rm' },
+    'dgm': { password: 'dgm123', role: 'dgm' }
+};
+
+function authenticate() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const errorMessage = document.getElementById('errorMessage');
+    
+    // Check if user exists and credentials match
+    if (users[username] && users[username].password === password) {
+        // Hide login modal
+        document.getElementById('authModal').style.display = 'none';
+        // Show main content
+        document.getElementById('mainContent').style.display = 'block';
+        // Show dashboard by default
+        showSection('dashboard');
+        // Clear error message
+        errorMessage.textContent = '';
+        
+        // Apply role-specific access
+        applyRoleAccess(users[username].role);
+    } else {
+        errorMessage.textContent = 'Invalid credentials. Please try again.';
+    }
+}
+
+function applyRoleAccess(role) {
+    const stockAllocationButtons = document.querySelectorAll('.system-btn');
+    
+    switch(role) {
+        case 'admin':
+            // Admin has access to everything
+            stockAllocationButtons.forEach(btn => btn.style.display = 'block');
+            break;
+        case 'rm':
+            // RM only sees RM button
+            stockAllocationButtons.forEach(btn => {
+                if (btn.textContent === 'RM') {
+                    btn.style.display = 'block';
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+            break;
+        case 'dgm':
+            // DGM has access to all but with read-only permissions
+            stockAllocationButtons.forEach(btn => btn.style.display = 'block');
+            break;
+    }
+}
+
+
+
+
+        function showSection(sectionId) {
+            // Update button states
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Hide all sections
+            document.getElementById('about').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'none';
+
+            // Show selected section
+            document.getElementById(sectionId).style.display = 
+                sectionId === 'dashboard' ? 'grid' : 'block';
+        }
+
+        // Handle Enter key in login form
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                authenticate();
+            }
+        });
+
+        // Also handle Enter key for username field
+        document.getElementById('username').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                authenticate();
+            }
+        });
+    </script>
+</body>
+</html>

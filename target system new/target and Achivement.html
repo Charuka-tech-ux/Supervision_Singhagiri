@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incentive Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 36px;
+            margin-bottom: 40px;
+        }
+        .form-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .form-group select, .form-group input {
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        .form-group label {
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        .section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .section h2 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .employee-select {
+            width: 200px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: right;
+        }
+        th {
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        td:first-child, th:first-child {
+            text-align: left;
+        }
+        .highlight {
+            background-color: #f1f1f1;
+        }
+        .analysis-card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .analysis-card h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        .analysis-card p {
+            font-size: 16px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sales Performance Analysis</h1>
+        
+        <div class="form-group">
+            <div>
+                <label for="month">Select Month:</label>
+                <select id="month">
+                    <option value="January">January</option>
+                    <option value="February">February</option>
+                    <option value="March">March</option>
+                    <option value="April">April</option>
+                    <option value="May">May</option>
+                    <option value="June">June</option>
+                    <option value="July">July</option>
+                    <option value="August">August</option>
+                    <option value="September">September</option>
+                    <option value="October">October</option>
+                    <option value="November">November</option>
+                    <option value="December">December</option>
+                </select>
+            </div>
+            <div>
+                <label for="fileUpload">Upload Excel File:</label>
+                <input type="file" id="fileUpload" accept=".xlsx">
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Area General Manager</h2>
+            <select id="dgmSelect" class="employee-select">
+                <option value="">Select AGM...</option>
+            </select>
+            <div id="dgmBestPerformance" class="analysis-card"></div>
+            <div id="dgmLowPerformance" class="analysis-card"></div>
+            <table id="dgmTable">
+                <thead>
+                    <tr>
+                        <th>AGM</th>
+                        <th class="highlight">Target</th>
+                        <th class="highlight">Achievement</th>
+                        <th>Forecast</th>
+                        <th>Achievement %</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot>
+                    <tr>
+                        <th>Total</th>
+                        <td id="dgmTargetTotal">0.00</td>
+                        <td id="dgmAchievementTotal">0.00</td>
+                        <td id="dgmForecastTotal">0.00</td>
+                        <td id="dgmAchievementPercent">0.00%</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Regional Manager</h2>
+            <select id="rmSelect" class="employee-select">
+                <option value="">Select RM...</option>
+            </select>
+            <div id="rmBestPerformance" class="analysis-card"></div>
+            <div id="rmLowPerformance" class="analysis-card"></div>
+            <table id="rmTable">
+                <thead>
+                    <tr>
+                        <th>RM</th>
+                        <th class="highlight">Target</th>
+                        <th class="highlight">Achievement</th>
+                        <th>Forecast</th>
+                        <th>Achievement %</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot>
+                    <tr>
+                        <th>Total</th>
+                        <td id="rmTargetTotal">0.00</td>
+                        <td id="rmAchievementTotal">0.00</td>
+                        <td id="rmForecastTotal">0.00</td>
+                        <td id="rmAchievementPercent">0.00%</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        const fileUpload = document.getElementById('fileUpload');
+        const monthSelect = document.getElementById('month');
+        const dgmSelect = document.getElementById('dgmSelect');
+        const rmSelect = document.getElementById('rmSelect');
+        const dgmTableBody = document.getElementById('dgmTable').querySelector('tbody');
+        const rmTableBody = document.getElementById('rmTable').querySelector('tbody');
+
+        let allData = [];
+
+        fileUpload.addEventListener('change', handleFileUpload);
+        monthSelect.addEventListener('change', filterData);
+        dgmSelect.addEventListener('change', updateDGMAnalysis);
+        rmSelect.addEventListener('change', updateRMAnalysis);
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+                    allData = XLSX.utils.sheet_to_json(sheet);
+                    
+                    populateEmployeeSelects();
+                    filterData();
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        function populateEmployeeSelects() {
+            const dgms = [...new Set(allData.filter(row => row.Type === 'DGM').map(row => row.Name))];
+            dgmSelect.innerHTML = '<option value="">Select AGM...</option>' +
+                dgms.map(dgm => `<option value="${dgm}">${dgm}</option>`).join('');
+
+            const rms = [...new Set(allData.filter(row => row.Type === 'RM').map(row => row.Name))];
+            rmSelect.innerHTML = '<option value="">Select RM...</option>' +
+                rms.map(rm => `<option value="${rm}">${rm}</option>`).join('');
+        }
+
+        function filterData() {
+            const selectedMonth = monthSelect.value;
+            const dgmData = allData.filter(row => row.Type === 'DGM' && row.Month === selectedMonth);
+            const rmData = allData.filter(row => row.Type === 'RM' && row.Month === selectedMonth);
+
+            populateTable(dgmTableBody, dgmData, 'dgm');
+            populateTable(rmTableBody, rmData, 'rm');
+
+            if (dgmSelect.value) updateDGMAnalysis();
+            if (rmSelect.value) updateRMAnalysis();
+        }
+
+        function formatNumber(value) {
+            return parseFloat(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function formatPercentage(value) {
+            return value.toFixed(2) + '%';
+        }
+
+        function populateTable(tableBody, data, type) {
+            tableBody.innerHTML = '';
+            let targetTotal = 0, achievementTotal = 0, forecastTotal = 0;
+
+            data.forEach(row => {
+                const target = parseFloat(row.Target) || 0;
+                const achievement = parseFloat(row.Achievement) || 0;
+                const forecast = parseFloat(row.Forecast) || 0;
+                
+                targetTotal += target;
+                achievementTotal += achievement;
+                forecastTotal += forecast;
+
+                const achievementPercent = target > 0 ? (achievement / target) * 100 : 0;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.Name}</td>
+                    <td>${formatNumber(target)}</td>
+                    <td>${formatNumber(achievement)}</td>
+                    <td>${formatNumber(forecast)}</td>
+                    <td>${formatPercentage(achievementPercent)}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            document.getElementById(`${type}TargetTotal`).textContent = formatNumber(targetTotal);
+            document.getElementById(`${type}AchievementTotal`).textContent = formatNumber(achievementTotal);
+            document.getElementById(`${type}ForecastTotal`).textContent = formatNumber(forecastTotal);
+            
+            const totalAchievementPercent = targetTotal > 0 ? (achievementTotal / targetTotal) * 100 : 0;
+            document.getElementById(`${type}AchievementPercent`).textContent = formatPercentage(totalAchievementPercent);
+        }
+
+        function updateDGMAnalysis() {
+            const selectedDGM = dgmSelect.value;
+            const employeeData = allData.filter(row => row.Name === selectedDGM && row.Type === 'DGM');
+            
+            if (!employeeData.length) return;
+
+            const months = employeeData.map(row => row.Month);
+            const achievements = employeeData.map(row => parseFloat(row.Achievement) || 0);
+            const targets = employeeData.map(row => parseFloat(row.Target) || 0);
+            
+            // Best and Low Performance Months
+            const bestMonth = months[achievements.indexOf(Math.max(...achievements))];
+            const bestAchievement = Math.max(...achievements);
+            const bestPercent = (bestAchievement / targets[achievements.indexOf(bestAchievement)]) * 100;
+
+            const lowMonth = months[achievements.indexOf(Math.min(...achievements))];
+            const lowAchievement = Math.min(...achievements);
+            const lowPercent = (lowAchievement / targets[achievements.indexOf(lowAchievement)]) * 100;
+
+            document.getElementById('dgmBestPerformance').innerHTML = `
+                <h3>Best Performance Month</h3>
+                <p>Month: ${bestMonth}</p>
+                <p>Achievement: ${formatNumber(bestAchievement)}</p>
+                <p>Achievement %: ${formatPercentage(bestPercent)}</p>
+            `;
+
+            document.getElementById('dgmLowPerformance').innerHTML = `
+                <h3>Low Performance Month</h3>
+                <p>Month: ${lowMonth}</p>
+                <p>Achievement: ${formatNumber(lowAchievement)}</p>
+                <p>Achievement %: ${formatPercentage(lowPercent)}</p>
+            `;
+        }
+
+        function updateRMAnalysis() {
+            const selectedRM = rmSelect.value;
+            const employeeData = allData.filter(row => row.Name === selectedRM && row.Type === 'RM');
+            
+            if (!employeeData.length) return;
+
+            const months = employeeData.map(row => row.Month);
+            const achievements = employeeData.map(row => parseFloat(row.Achievement) || 0);
+            const targets = employeeData.map(row => parseFloat(row.Target) || 0);
+
+            // Best and Low Performance Months
+            const bestMonth = months[achievements.indexOf(Math.max(...achievements))];
+            const bestAchievement = Math.max(...achievements);
+            const bestPercent = (bestAchievement / targets[achievements.indexOf(bestAchievement)]) * 100;
+
+            const lowMonth = months[achievements.indexOf(Math.min(...achievements))];
+            const lowAchievement = Math.min(...achievements);
+            const lowPercent = (lowAchievement / targets[achievements.indexOf(lowAchievement)]) * 100;
+
+            document.getElementById('rmBestPerformance').innerHTML = `
+                <h3>Best Performance Month</h3>
+                <p>Month: ${bestMonth}</p>
+                <p>Achievement: ${formatNumber(bestAchievement)}</p>
+                <p>Achievement %: ${formatPercentage(bestPercent)}</p>
+            `;
+
+            document.getElementById('rmLowPerformance').innerHTML = `
+                <h3>Low Performance Month</h3>
+                <p>Month: ${lowMonth}</p>
+                <p>Achievement: ${formatNumber(lowAchievement)}</p>
+                <p>Achievement %: ${formatPercentage(lowPercent)}</p>
+            `;
+        }
+    </script>
+    
+</body>
+</html>
+
